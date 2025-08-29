@@ -10,10 +10,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-const FULL_NAME = "john_doe"; 
-const DOB = "17091999";      
-const EMAIL = "john@xyz.com"; 
-const ROLL_NUMBER = "ABCD123"; 
+const FULL_NAME = "dhruv_agarwal"; 
+const DOB = "08062003";      
+const EMAIL = "dhruv0806a@gmail.com"; 
+const ROLL_NUMBER = "22BCE2825"; 
 
 
 function alternatingCaps(str) {
@@ -30,7 +30,7 @@ function alternatingCaps(str) {
 }
 
 
-app.post("/bfhl", (req, res) => {
+app.post("/api/bfhl", (req, res) => {
     try {
         const inputArray = req.body.data;
 
