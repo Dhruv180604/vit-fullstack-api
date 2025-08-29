@@ -1,7 +1,15 @@
-// api/bfhl.js (Vercel serverless function)
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const serverless = require("serverless-http");
+
+const app = express();
+
+app.use(cors());
+app.use(bodyParser.json());
 
 const FULL_NAME = "dhruv_agarwal"; 
-const DOB = "08062003";                 
+const DOB = "08062003";      
 const EMAIL = "dhruv0806a@gmail.com"; 
 const ROLL_NUMBER = "22BCE2825"; 
 
@@ -18,13 +26,9 @@ function alternatingCaps(str) {
   return result;
 }
 
-export default function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ is_success: false, message: "Only POST allowed" });
-  }
-
+app.post("/bfhl", (req, res) => {
   try {
-    const inputArray = req.body?.data;
+    const inputArray = req.body.data;
 
     if (!Array.isArray(inputArray)) {
       return res.status(400).json({
@@ -33,47 +37,53 @@ export default function handler(req, res) {
       });
     }
 
-    const even_numbers = [];
-    const odd_numbers = [];
-    const alphabets = [];
-    const special_characters = [];
+    let evenNumbers = [];
+    let oddNumbers = [];
+    let alphabets = [];
+    let specialChars = [];
     let sum = 0;
     let concatAlpha = "";
 
-    for (const item of inputArray) {
-      if (typeof item !== "string") {
-       
-        special_characters.push(String(item));
-        continue;
-      }
-
-      if (/^-?\d+$/.test(item)) {
-        
-        const num = parseInt(item, 10);
-        if (num % 2 === 0) even_numbers.push(item);
-        else odd_numbers.push(item);
+    inputArray.forEach(item => {
+      if (/^-?\d+$/.test(item)) { 
+        let num = parseInt(item, 10);
+        if (num % 2 === 0) {
+          evenNumbers.push(item); 
+        } else {
+          oddNumbers.push(item);
+        }
         sum += num;
-      } else if (/^[a-zA-Z]+$/.test(item)) {
+      } else if (/^[a-zA-Z]+$/.test(item)) { 
         alphabets.push(item.toUpperCase());
         concatAlpha += item;
-      } else {
-        special_characters.push(item);
+      } else { 
+        specialChars.push(item);
       }
-    }
+    });
 
-    return res.status(200).json({
+    const response = {
       is_success: true,
-      user_id: `${FULL_NAME}_${DOB}`,     
+      user_id: `${FULL_NAME}_${DOB}`,
       email: EMAIL,
       roll_number: ROLL_NUMBER,
-      odd_numbers,
-      even_numbers,
-      alphabets,
-      special_characters,
-      sum: String(sum),                    
+      odd_numbers: oddNumbers,
+      even_numbers: evenNumbers,
+      alphabets: alphabets,
+      special_characters: specialChars,
+      sum: sum.toString(),
       concat_string: alternatingCaps(concatAlpha)
+    };
+
+    res.status(200).json(response);
+
+  } catch (error) {
+    res.status(500).json({
+      is_success: false,
+      message: error.message
     });
-  } catch (err) {
-    return res.status(500).json({ is_success: false, message: err.message });
   }
-}
+});
+
+
+module.exports = app;
+module.exports.handler = serverless(app);
